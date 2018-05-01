@@ -1,4 +1,3 @@
-import get from "lodash.get"
 import produce from "immer"
 import createDotPathMatcher from "dot-match"
 
@@ -16,11 +15,6 @@ class Controller {
         if (isStr(path)) this.matcher = createDotPathMatcher(path)
     }
 
-    base(path) {
-        this.options.cwd = path
-        return this
-    }
-
     filter(fn) {
         this.options.include = fn
         return this
@@ -34,10 +28,6 @@ class Controller {
     exclude(fn) {
         this.options.exclude = fn
         return this
-    }
-
-    state() {
-        return get(this.params.state, this.path)
     }
 
     produce(fn) {
