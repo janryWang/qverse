@@ -1,6 +1,6 @@
 # qverse
 
-> Traverse any data with DPML commands.
+> Traverse any data with [DPML](https://github.com/janryWang/dot-match) commands.
 >
 > You can use qverse for [react-propers](https://github.com/janryWang/react-propers).
 
