@@ -1,6 +1,6 @@
 import produce from "immer"
 import createDotPathMatcher from "dot-match"
-
+import get from "lodash.get"
 export const isFn = val => typeof val == "function"
 export const isBool = val => typeof val == "boolean"
 export const isArr = val => Array.isArray(val)
@@ -28,6 +28,10 @@ class Controller {
     exclude(fn) {
         this.options.exclude = fn
         return this
+    }
+
+    state(path) {
+        return get(this.params.state, path)
     }
 
     produce(fn) {
@@ -154,7 +158,7 @@ const createQuery = (actions, params) => {
     query.key = () =>
         transDotString(params.key || params.name || params.index || params.path)
     query.params = () => params
-
+    query.payload = () => params.payload
     return query
 }
 

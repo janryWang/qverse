@@ -100,6 +100,7 @@ interface CommandFactory {
    path() : Array<String>
    key() : String
    params() : any
+   payload() : any
 }
 ```
 
@@ -112,6 +113,7 @@ interface Command {
     filter(params : CurrentParams) : Boolean
     exclude(params : CurrentParams) : Boolean
     include(params : CurrentParams) : Boolean
+    state(path : String) : any // State getter for CurrentParams
     produce(callback : function(payload : any): Boolean? ) : any //Here is the usage of https://github.com/mweststrate/immer
     rescue() : Void //Because our command is an orderly execution logic, if the previous command overrides the result of the following command, then we can use the rescue method.
 }
