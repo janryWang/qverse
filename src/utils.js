@@ -171,9 +171,9 @@ const createActions = (cmd, params) => {
 const excute = (payload, actions, params) => {
     return actions.reduce((buf, action) => {
         if (action.handler) {
-            return action.matcher(params) && action.handler(buf)
+            return action.matcher(params) ? action.handler(buf) : buf
         } else if (action.rescue) {
-            return action.matcher(params) && action.rescue(payload)
+            return action.matcher(params) ? payload : buf
         }
         return buf
     }, payload)
