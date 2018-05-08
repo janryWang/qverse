@@ -49,6 +49,7 @@ class Controller {
                 }
             }
         })
+        return this
     }
 
     rescue() {
@@ -56,6 +57,7 @@ class Controller {
             matcher: createMatcher(this.path, this.options, this.matcher),
             rescue: payload => payload
         })
+        return this
     }
 
     display(fn) {
@@ -74,6 +76,7 @@ class Controller {
                 return payload
             }
         })
+        return this
     }
 }
 
