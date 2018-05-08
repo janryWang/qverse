@@ -30,10 +30,6 @@ class Controller {
         return this
     }
 
-    state(path) {
-        return get(this.params.state, path)
-    }
-
     produce(fn) {
         this.actions.push({
             matcher: createMatcher(this.path, this.options, this.matcher),
@@ -159,6 +155,7 @@ const createQuery = (actions, params) => {
         transDotString(params.key || params.name || params.index || params.path)
     query.params = () => params
     query.payload = () => params.payload
+    query.state = path => get(params.state, path)
     return query
 }
 
