@@ -1,10 +1,12 @@
-import produce from "immer"
+import produce, { setAutoFreeze } from "immer"
 import createDotPathMatcher from "dot-match"
 import get from "lodash.get"
 export const isFn = val => typeof val == "function"
 export const isBool = val => typeof val == "boolean"
 export const isArr = val => Array.isArray(val)
 export const isStr = val => typeof val == "string"
+
+setAutoFreeze(false)
 
 class Controller {
     constructor({ path, options, actions, params }) {
