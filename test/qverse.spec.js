@@ -1,8 +1,6 @@
 import test from "ava"
 import qverse from "../src/index"
 
-
-
 const testAll = obj => {
     for (let name in obj) {
         test(name, t => {
@@ -44,6 +42,10 @@ testAll({
             $("aaa.bbb.ccc").produce((payload)=>{
                 payload.props.c -= 22
             })
+
+            console.log($.replace("111.222.333",{
+                $2:"dddd"
+            }))
         }
     },
     "aaa.0.cccc":{

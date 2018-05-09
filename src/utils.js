@@ -141,17 +141,33 @@ const createMatcher = (path, options, matcher) => {
 
 const replacePath = (path, replacer) => {
     if (isArr(path)) {
-        path = path.reduce((buf, item, index) => {
-            if (replacer && isFn(replacer["$" + index])) {
-                buf[index] = replacer["$" + index](item)
+        return path.reduce((buf, item, index) => {
+            const name = "$" + index
+            if (replacer) {
+                if (isFn(replacer[name])) {
+                    buf[index] = replacer[name](item)
+                } else if (isStr(replacer[name])) {
+                    buf[index] = replacer[name]
+                } else {
+                    buf[index] = item
+                }
+            } else {
+                buf[index] = item
             }
             return buf
         }, [])
     } else {
         path = (path || "").trim().split(/\s*\.\s*/)
         path = path.reduce((buf, item, index) => {
-            if (replacer && isFn(replacer["$" + index])) {
-                buf[index] = replacer["$" + index](item)
+            const name = "$" + index
+            if (replacer) {
+                if (isFn(replacer[name])) {
+                    buf[index] = replacer[name](item)
+                } else if (isStr(replacer[name])) {
+                    buf[index] = replacer[name]
+                } else {
+                    buf[index] = item
+                }
             } else {
                 buf[index] = item
             }
