@@ -134,4 +134,35 @@ testAll({
             })
         }
     },
+    "aaa.bbb.ddd":{
+        before:{
+        },
+        after:{
+            props:{
+                a:1,
+                b:2,
+                c:33
+            }
+        },
+        traverse($){
+            $("*",{
+                include:["aaa.bbb.ddd"]
+            }).produce((payload)=>{
+                payload.props = {}
+                payload.props.a = 1
+            })
+
+            $("*",{
+                include:["aaa.bbb.ddd"]
+            }).produce((payload)=>{
+                payload.props.b = 2
+            })
+
+            $("aaa.bbb.*",{
+                include:["aaa.bbb.ddd"]
+            }).produce((payload)=>{
+                payload.props.c = 33
+            })
+        }
+    },
 })

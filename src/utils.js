@@ -80,15 +80,29 @@ class Controller {
     }
 }
 
-const testOpts = (opts = {}, params) => {
+const testOpts = (opts = {}, params, matcher) => {
     if (isFn(opts.include)) {
         return (
             opts.include(params) && testOpts({ exclude: opts.exclude }, params)
         )
     }
 
+    if (isArr(opts.include)) {
+        return (
+            opts.include.some(path =>
+                createDotPathMatcher(path)(params.path)
+            ) && testOpts({ exclude: opts.exclude }, params, matcher)
+        )
+    }
+
     if (isFn(opts.exclude)) {
         return !opts.exclude(params)
+    }
+
+    if (isArr(opts.exclude)) {
+        return !opts.exclude.some(path =>
+            createDotPathMatcher(path)(params.path)
+        )
     }
 
     return true
@@ -108,7 +122,9 @@ const createMatcher = (path, options, matcher) => {
             params.key || params.name || params.index || params.path
         )
         if (isArr(path)) {
-            return path.some(p => createMatcher(p, options)(params))
+            return path.some(p =>
+                createMatcher(p, options, createDotPathMatcher(p))(params)
+            )
         } else if (path instanceof RegExp) {
             return path.test(key) && testOpts(options, params)
         } else if (isFn(path)) {
