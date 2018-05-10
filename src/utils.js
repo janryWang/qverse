@@ -192,7 +192,7 @@ const createQuery = (actions, params) => {
         transDotString(params.key || params.name || params.index || params.path)
     query.params = () => params
     query.payload = () => params.payload
-    query.state = path => get(params.state, path)
+    query.state = path => (path ? get(params.state, path) : params.state)
     return query
 }
 
