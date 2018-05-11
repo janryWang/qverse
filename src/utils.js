@@ -82,7 +82,13 @@ class Controller {
     }
 }
 
+const toArr = val => {
+    return isArr(val) ? val : val ? [val] : []
+}
+
 const testOpts = (opts = {}, params, matcher) => {
+    const _path = toArr(params.path)
+
     if (isFn(opts.include)) {
         return (
             opts.include(params) && testOpts({ exclude: opts.exclude }, params)
@@ -91,8 +97,9 @@ const testOpts = (opts = {}, params, matcher) => {
 
     if (isArr(opts.include)) {
         return (
-            opts.include.some(path =>
-                createDotPathMatcher(path)(params.path)
+            opts.include.some(
+                path =>
+                    _path.length ? createDotPathMatcher(path)(_path) : true
             ) && testOpts({ exclude: opts.exclude }, params, matcher)
         )
     }
@@ -102,12 +109,16 @@ const testOpts = (opts = {}, params, matcher) => {
     }
 
     if (isArr(opts.exclude)) {
-        return !opts.exclude.some(path =>
-            createDotPathMatcher(path)(params.path)
+        return !opts.exclude.some(
+            path => (_path.length ? createDotPathMatcher(path)(_path) : true)
         )
     }
 
     return true
+}
+
+const parseString = str => {
+    return String(str).split(".")
 }
 
 const transDotString = val => {

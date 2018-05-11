@@ -160,6 +160,10 @@ testAll({
                 payload.props.b = 2
             })
 
+            $("*",{
+                exclude:["aaa.bbb.ddd"]
+            }).display(false)
+
             $("aaa.bbb.*",{
                 include:["aaa.bbb.ddd"]
             }).produce((payload)=>{
