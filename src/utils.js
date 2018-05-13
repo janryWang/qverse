@@ -86,6 +86,10 @@ const toArr = val => {
     return isArr(val) ? val : val ? [val] : []
 }
 
+const isNotEmptyPath = path => {
+    return toArr(path).length > 0
+}
+
 const testOpts = (opts = {}, params, matcher) => {
     const _path = toArr(params.path)
 
@@ -97,10 +101,8 @@ const testOpts = (opts = {}, params, matcher) => {
 
     if (isArr(opts.include)) {
         return (
-            opts.include.some(
-                path =>
-                    _path.length ? createDotPathMatcher(path)(_path) : true
-            ) && testOpts({ exclude: opts.exclude }, params, matcher)
+            opts.include.some(path => createDotPathMatcher(path)(_path)) &&
+            testOpts({ exclude: opts.exclude }, params, matcher)
         )
     }
 
@@ -109,9 +111,7 @@ const testOpts = (opts = {}, params, matcher) => {
     }
 
     if (isArr(opts.exclude)) {
-        return !opts.exclude.some(
-            path => (_path.length ? createDotPathMatcher(path)(_path) : true)
-        )
+        return !opts.exclude.some(path => createDotPathMatcher(path)(_path))
     }
 
     return true
@@ -216,9 +216,13 @@ const createActions = (cmd, params) => {
 const excute = (payload, actions, params) => {
     return actions.reduce((buf, action) => {
         if (action.handler) {
-            return action.matcher(params) ? action.handler(buf) : buf
+            return action.matcher(params) && isNotEmptyPath(params.path)
+                ? action.handler(buf)
+                : buf
         } else if (action.rescue) {
-            return action.matcher(params) ? payload : buf
+            return action.matcher(params) && isNotEmptyPath(params.path)
+                ? payload
+                : buf
         }
         return buf
     }, payload)
