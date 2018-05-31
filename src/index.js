@@ -16,7 +16,7 @@ export const qverse = ($path, $params, cmd) => {
     }
     if (isFn($params)) {
         cmd = $params
-        params = undefined
+        $params = undefined
     }
 
     if (isObj($params)) {
