@@ -16,7 +16,10 @@ export const qverse = ($path, $params, cmd) => {
     }
     if (isFn($params)) {
         cmd = $params
-    } else if (isObj($params)) {
+        params = undefined
+    }
+
+    if (isObj($params)) {
         if (isStr($path) || isArr($path)) {
             $params.path = $path
             $params.payload = $params.payload || {}
