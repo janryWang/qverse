@@ -1,8 +1,49 @@
-import { excute, createActions, extend, isFn } from "./utils"
+import {
+    excute,
+    createActions,
+    extend,
+    isFn,
+    isObj,
+    isStr,
+    isArr
+} from "./utils"
 
-export const qverse = cmd => {
+export const qverse = ($path, $params, cmd) => {
+    let higher = false
+    if (isFn($path)) {
+        cmd = $path
+        higher = true
+    }
+    if (isFn($params)) {
+        cmd = $params
+    } else if (isObj($params)) {
+        if (isStr($path) || isArr($path)) {
+            $params.path = $path
+            $params.payload = $params.payload || {}
+            higher = false
+        } else {
+            higher = true
+        }
+    } else {
+        if (isStr($path) || isArr($path)) {
+            $params = {
+                path: $path,
+                payload: {}
+            }
+            higher = false
+        } else {
+            higher = true
+        }
+    }
+
+    if (!isFn(cmd))
+        throw new Error("[Qverse Error] Controller must be a function.")
+
+    if (!higher) {
+        return excute($params.payload, createActions(cmd, $params), $params)
+    }
+
     return (payload, params) => {
-        if (!isFn(cmd)) return payload
         return excute(payload, createActions(cmd, params), params)
     }
 }

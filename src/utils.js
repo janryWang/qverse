@@ -3,6 +3,7 @@ import createDotPathMatcher from "dot-match"
 import get from "lodash.get"
 export const isFn = val => typeof val == "function"
 export const isBool = val => typeof val == "boolean"
+export const isObj = val => typeof val == "object"
 export const isArr = val => Array.isArray(val)
 export const isStr = val => typeof val == "string"
 
@@ -29,6 +30,17 @@ class Controller {
 
     exclude(fn) {
         this.options.exclude = fn
+        return this
+    }
+
+    call(fn) {
+        this.actions.push({
+            matcher: createMatcher(this.path, this.options, this.matcher),
+            handler: payload => {
+                if (isFn(fn)) produce(payload, fn)
+                return payload
+            }
+        })
         return this
     }
 
