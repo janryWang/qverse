@@ -91,7 +91,7 @@ const isNotEmptyPath = path => {
 }
 
 const testOpts = (opts = {}, params, matcher) => {
-    const _path = toArr(params.path)
+    const _path = toArr(getParamsPath(params))
 
     if (isFn(opts.include)) {
         return (
@@ -129,11 +129,22 @@ const transDotString = val => {
     return isStr(val) ? val : ""
 }
 
+const getParamsKey = params => {
+    return transDotString(
+        params.key || params.name || params.index || params.path
+    )
+}
+
+const getParamsPath = params => {
+    if (isArr(params.path)) return params.path
+    if (isArr(params.key)) return params.key
+    if (isStr(params.path)) return params.path.split(".")
+    if (isStr(params.key)) return params.key.split(".")
+}
+
 const createMatcher = (path, options, matcher) => {
-    return params => {
-        const key = transDotString(
-            params.key || params.name || params.index || params.path
-        )
+    return (params = {}) => {
+        const key = getParamsKey(params)
         if (isArr(path)) {
             return path.some(p =>
                 createMatcher(p, options, createDotPathMatcher(p))(params)
@@ -143,7 +154,7 @@ const createMatcher = (path, options, matcher) => {
         } else if (isFn(path)) {
             return path(key, params) && testOpts(options, params)
         } else if (isStr(path)) {
-            return matcher(params.path) && testOpts(options, params)
+            return matcher(getParamsPath(params)) && testOpts(options, params)
         }
 
         return false
@@ -198,9 +209,8 @@ const createQuery = (actions, params) => {
         })
     }
     query.replace = replacePath
-    query.path = () => params.path
-    query.key = () =>
-        transDotString(params.key || params.name || params.index || params.path)
+    query.path = () => getParamsPath(params)
+    query.key = () => getParamsKey(params)
     query.params = () => params
     query.payload = () => params.payload
     query.state = path => (path ? get(params.state, path) : params.state)
@@ -216,11 +226,13 @@ const createActions = (cmd, params) => {
 const excute = (payload, actions, params) => {
     return actions.reduce((buf, action) => {
         if (action.handler) {
-            return action.matcher(params) && isNotEmptyPath(params.path)
+            return action.matcher(params) &&
+                isNotEmptyPath(getParamsPath(params))
                 ? action.handler(buf)
                 : buf
         } else if (action.rescue) {
-            return action.matcher(params) && isNotEmptyPath(params.path)
+            return action.matcher(params) &&
+                isNotEmptyPath(getParamsPath(params))
                 ? payload
                 : buf
         }
