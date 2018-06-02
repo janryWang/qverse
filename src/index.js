@@ -46,8 +46,10 @@ export const qverse = ($path, $params, cmd) => {
         return excute($params.payload, createActions(cmd, $params), $params)
     }
 
+    const cache = new Map()
+
     return (payload, params) => {
-        return excute(payload, createActions(cmd, params), params)
+        return excute(payload, createActions(cmd, params, cache), params)
     }
 }
 

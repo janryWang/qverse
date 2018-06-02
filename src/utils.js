@@ -10,12 +10,13 @@ export const isStr = val => typeof val == "string"
 setAutoFreeze(false)
 
 class Controller {
-    constructor({ path, options, actions, params }) {
+    constructor({ path, options, actions, params, cache }) {
         this.path = path
         this.options = options || {}
         this.actions = actions
         this.params = params || {}
-        if (isStr(path)) this.matcher = createDotPathMatcher(path)
+        this.cache = cache
+        if (isStr(path)) this.matcher = createDotPathMatcher(path, this.cache)
     }
 
     filter(fn) {
@@ -33,9 +34,13 @@ class Controller {
         return this
     }
 
+    _createMatcher() {
+        return createMatcher(this.path, this.options, this.matcher, this.cache)
+    }
+
     call(fn) {
         this.actions.push({
-            matcher: createMatcher(this.path, this.options, this.matcher),
+            matcher: this._createMatcher(),
             handler: payload => {
                 if (isFn(fn)) produce(payload, fn)
                 return payload
@@ -46,7 +51,7 @@ class Controller {
 
     produce(fn) {
         this.actions.push({
-            matcher: createMatcher(this.path, this.options, this.matcher),
+            matcher: this._createMatcher(),
             handler: payload => {
                 if (!payload) return payload
                 let out
@@ -68,7 +73,7 @@ class Controller {
 
     rescue() {
         this.actions.push({
-            matcher: createMatcher(this.path, this.options, this.matcher),
+            matcher: this._createMatcher(),
             rescue: payload => payload
         })
         return this
@@ -76,7 +81,7 @@ class Controller {
 
     display(fn) {
         this.actions.push({
-            matcher: createMatcher(this.path, this.options, this.matcher),
+            matcher: this._createMatcher(),
             handler: payload => {
                 if (!payload) return payload
                 if (isBool(fn)) {
@@ -102,7 +107,7 @@ const isNotEmptyPath = path => {
     return toArr(path).length > 0
 }
 
-const testOpts = (opts = {}, params, matcher) => {
+const testOpts = (opts = {}, params, cache) => {
     const _path = toArr(getParamsPath(params))
 
     if (isFn(opts.include)) {
@@ -113,8 +118,9 @@ const testOpts = (opts = {}, params, matcher) => {
 
     if (isArr(opts.include)) {
         return (
-            opts.include.some(path => createDotPathMatcher(path)(_path)) &&
-            testOpts({ exclude: opts.exclude }, params, matcher)
+            opts.include.some(path =>
+                createDotPathMatcher(path, cache)(_path)
+            ) && testOpts({ exclude: opts.exclude }, params, cache)
         )
     }
 
@@ -123,7 +129,9 @@ const testOpts = (opts = {}, params, matcher) => {
     }
 
     if (isArr(opts.exclude)) {
-        return !opts.exclude.some(path => createDotPathMatcher(path)(_path))
+        return !opts.exclude.some(path =>
+            createDotPathMatcher(path, cache)(_path)
+        )
     }
 
     return true
@@ -154,19 +162,27 @@ const getParamsPath = params => {
     if (isStr(params.key)) return params.key.split(".")
 }
 
-const createMatcher = (path, options, matcher) => {
+const createMatcher = (path, options, matcher, cache) => {
     return (params = {}) => {
         const key = getParamsKey(params)
         if (isArr(path)) {
             return path.some(p =>
-                createMatcher(p, options, createDotPathMatcher(p))(params)
+                createMatcher(
+                    p,
+                    options,
+                    createDotPathMatcher(p, cache),
+                    cache
+                )(params)
             )
         } else if (path instanceof RegExp) {
-            return path.test(key) && testOpts(options, params)
+            return path.test(key) && testOpts(options, params, cache)
         } else if (isFn(path)) {
-            return path(key, params) && testOpts(options, params)
+            return path(key, params) && testOpts(options, params, cache)
         } else if (isStr(path)) {
-            return matcher(getParamsPath(params)) && testOpts(options, params)
+            return (
+                matcher(getParamsPath(params)) &&
+                testOpts(options, params, cache)
+            )
         }
 
         return false
@@ -211,13 +227,14 @@ const replacePath = (path, replacer) => {
     }
 }
 
-const createQuery = (actions, params) => {
+const createQuery = (actions, params, cache) => {
     const query = (path, options) => {
         return new Controller({
             path,
             options,
             actions,
-            params
+            params,
+            cache
         })
     }
     query.replace = replacePath
@@ -229,9 +246,9 @@ const createQuery = (actions, params) => {
     return query
 }
 
-const createActions = (cmd, params) => {
+const createActions = (cmd, params, cache) => {
     const actions = []
-    cmd(createQuery(actions, params))
+    cmd(createQuery(actions, params, cache))
     return actions
 }
 
