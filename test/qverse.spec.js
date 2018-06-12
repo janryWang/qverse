@@ -99,14 +99,16 @@ testAll({
                 payload.props.b = 22
             })
 
-            $("*").display(false)
-
-            $("aaa.bbb.ccc1").rescue()
-
-            $("aaa.bbb.*").produce((payload)=>{
+            $("*")
+            .display(false)
+            .select("aaa.bbb.ccc1")
+            .rescue()
+            .select("aaa.bbb.*")
+            .produce((payload)=>{
                 payload.props.c = 55
             })
-            $("aaa.bbb.ccc1").produce((payload)=>{
+            .select("aaa.bbb.ccc1")
+            .produce((payload)=>{
                 payload.props.c -= 22
             })
         }

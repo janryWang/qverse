@@ -116,6 +116,7 @@ interface Command {
     include(params : CurrentParams) : Boolean
     produce(callback : function(payload : any): Boolean? ) : any //Here is the usage of https://github.com/mweststrate/immer
     rescue() : Void //Because our command is an orderly execution logic, if the previous command overrides the result of the following command, then we can use the rescue method.
+    select(DPML : String | Array<String> | Function , Options : MatchOptions) : Command
 }
 ```
 

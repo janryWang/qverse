@@ -71,6 +71,16 @@ class Controller {
         return this
     }
 
+    select(path, options) {
+        return new Controller({
+            path,
+            options,
+            actions: this.actions,
+            params: this.params,
+            cache: this.cache
+        })
+    }
+
     rescue() {
         this.actions.push({
             matcher: this._createMatcher(),
