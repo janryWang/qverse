@@ -3,6 +3,8 @@
 > Traverse any data with [DPML](https://github.com/janryWang/dot-match) commands.
 >
 > You can use qverse for [react-propers](https://github.com/janryWang/react-propers).
+>
+> Support pipeline operator.
 
 
 
@@ -12,7 +14,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import Propers from "react-propers"
-import qverse from "qverse"
+import qverse,{produce} from "qverse"
 
 ReactDOM.render(
    <Propers selector="$id" traverse={qverse(($)=>{
@@ -20,9 +22,12 @@ ReactDOM.render(
            props.className = "yellow"
        })
        
-       $("ddd").display(false)
+       $("ddd").pipe(
+         display(false)
+       )
        
-       $(["aaa","bbb"]).produce(props=>{
+       $(["aaa","bbb"])
+       |> produce(props=>{
            props.className += " blue-font"
        })
    })}>

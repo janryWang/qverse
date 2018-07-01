@@ -1,6 +1,5 @@
 import test from "ava"
-import qverse from "../src/index"
-import {
+import qverse, {
     display,
     include,
     exclude,
@@ -9,7 +8,8 @@ import {
     rescue,
     call,
     select
-} from "../src/operators"
+} from "../src/index"
+
 const testAll = obj => {
     for (let name in obj) {
         test(name, t => {

@@ -7,6 +7,7 @@ import {
     isStr,
     isArr
 } from "./utils"
+export * from "./operators"
 
 export const qverse = ($path, $params, cmd) => {
     let higher = false
