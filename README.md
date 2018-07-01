@@ -72,8 +72,33 @@ npm install --save qverse
 > extend some methods for CommandFactory 
 
 
+**`produce(fn : Function)`**
 
+> pipline operator for produce data
 
+**`display(show : Function | Boolean)`**
+
+> pipeline operator for show data
+
+**`rescue()`**
+
+> pipeline operator for rescue data
+
+**`select(DPML : String | Array<String> | Function , Options : MatchOptions)`**
+
+> pipeline operator for reselect data
+
+**`filter()`**
+
+> pipeline operator for filter data
+
+**`include()`**
+
+> pipeline operator for include data
+
+**`exclude()`**
+
+> pipeline operator for exclude data
 
 ### Interface
 
@@ -122,6 +147,8 @@ interface Command {
     produce(callback : function(payload : any): Boolean? ) : any //Here is the usage of https://github.com/mweststrate/immer
     rescue() : Void //Because our command is an orderly execution logic, if the previous command overrides the result of the following command, then we can use the rescue method.
     select(DPML : String | Array<String> | Function , Options : MatchOptions) : Command
+    display(show : Function | Boolean) : Command
+    call(fn : Function) : Command
 }
 ```
 
