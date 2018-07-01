@@ -88,15 +88,15 @@ npm install --save qverse
 
 > pipeline operator for reselect data
 
-**`filter()`**
+**`filter(fn : Function)`**
 
 > pipeline operator for filter data
 
-**`include()`**
+**`include(fn : Function)`**
 
 > pipeline operator for include data
 
-**`exclude()`**
+**`exclude(fn : Function)`**
 
 > pipeline operator for exclude data
 
