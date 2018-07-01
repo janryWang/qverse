@@ -38,37 +38,49 @@ class Controller {
         return createMatcher(this.path, this.options, this.matcher, this.cache)
     }
 
-    call(fn) {
+    createAction(handler, rescue) {
         this.actions.push({
             matcher: this._createMatcher(),
-            handler: payload => {
-                if (isFn(fn)) produce(payload, fn)
-                return payload
-            }
+            handler,
+            rescue
+        })
+    }
+
+    call(fn) {
+        this.createAction(payload => {
+            if (isFn(fn)) produce(payload, fn)
+            return payload
         })
         return this
     }
 
     produce(fn) {
-        this.actions.push({
-            matcher: this._createMatcher(),
-            handler: payload => {
-                if (!payload) return payload
-                let out
-                let res = produce(payload, state => {
-                    if (isFn(fn)) {
-                        out = fn(state)
-                    }
-                })
-
-                if (out === false) {
-                    return undefined
-                } else {
-                    return res
+        this.createAction(payload => {
+            if (!payload) return payload
+            let out
+            let res = produce(payload, state => {
+                if (isFn(fn)) {
+                    out = fn(state)
                 }
+            })
+
+            if (out === false) {
+                return undefined
+            } else {
+                return res
             }
         })
         return this
+    }
+
+    pipe(...args) {
+        return args.reduce((buf, fn) => {
+            if (isFn(fn)) {
+                return fn(buf)
+            } else {
+                return buf
+            }
+        }, this)
     }
 
     select(path, options) {
@@ -90,20 +102,17 @@ class Controller {
     }
 
     display(fn) {
-        this.actions.push({
-            matcher: this._createMatcher(),
-            handler: payload => {
-                if (!payload) return payload
-                if (isBool(fn)) {
-                    if (fn) return payload
-                    return false
-                } else if (isFn(fn)) {
-                    if (fn(payload)) return payload
-                    return false
-                }
-
-                return payload
+        this.createAction(payload => {
+            if (!payload) return payload
+            if (isBool(fn)) {
+                if (fn) return payload
+                return false
+            } else if (isFn(fn)) {
+                if (fn(payload)) return payload
+                return false
             }
+
+            return payload
         })
         return this
     }

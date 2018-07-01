@@ -1,6 +1,15 @@
 import test from "ava"
 import qverse from "../src/index"
-
+import {
+    display,
+    include,
+    exclude,
+    filter,
+    produce,
+    rescue,
+    call,
+    select
+} from "../src/operators"
 const testAll = obj => {
     for (let name in obj) {
         test(name, t => {
@@ -14,163 +23,174 @@ const testAll = obj => {
 }
 
 testAll({
-    "aaa.bbb.ccc":{
-        before:{
-            props:{
-                a:1,
-                b:2,
-                c:3
+    "aaa.bbb.ccc": {
+        before: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 3
             }
         },
-        after:{
-            props:{
-                a:11,
-                b:22,
-                c:33
+        after: {
+            props: {
+                a: 11,
+                b: 22,
+                c: 33
             }
         },
-        traverse($){
-            $("*").produce((payload)=>{
+        traverse($) {
+            $("*").produce(payload => {
                 payload.props.a = 11
             })
-            $("aaa.*").produce((payload)=>{
+            $("aaa.*").produce(payload => {
                 payload.props.b = 22
             })
-            $("aaa.bbb.*").produce((payload)=>{
+            $("aaa.bbb.*").produce(payload => {
                 payload.props.c = 55
             })
-            $("aaa.bbb.ccc").produce((payload)=>{
+            $("aaa.bbb.ccc").produce(payload => {
                 payload.props.c -= 22
             })
 
-            console.log($.replace("111.222.333",{
-                $2:"dddd"
-            }))
+            console.log(
+                $.replace("111.222.333", {
+                    $2: "dddd"
+                })
+            )
         }
     },
-    "aaa.0.cccc":{
-        before:{
-            props:{
-                a:1,
-                b:2,
-                c:3
+    "aaa.0.cccc": {
+        before: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 3
             }
         },
-        after:{
-            props:{
-                a:11,
-                b:22,
-                c:33
+        after: {
+            props: {
+                a: 11,
+                b: 22,
+                c: 33
             }
         },
-        traverse($){
-            $("*").produce((payload)=>{
-                payload.props.a = 11
-            })
-            $("aaa.*").produce((payload)=>{
-                payload.props.b = 22
-            })
-            $("aaa.*[:3].*").produce((payload)=>{
-                payload.props.c = 33
-            })
-        }
-    },
-    "aaa.bbb.ccc1":{
-        before:{
-            props:{
-                a:1,
-                b:2,
-                c:3
-            }
-        },
-        after:{
-            props:{
-                a:1,
-                b:2,
-                c:33
-            }
-        },
-        traverse($){
-
-            $("*").produce((payload)=>{
-                payload.props.a = 11
-            })
-            $("aaa.*").produce((payload)=>{
-                payload.props.b = 22
-            })
-
+        traverse($) {
             $("*")
-            .display(false)
-            .select("aaa.bbb.ccc1")
-            .rescue()
-            .select("aaa.bbb.*")
-            .produce((payload)=>{
-                payload.props.c = 55
-            })
-            .select("aaa.bbb.ccc1")
-            .produce((payload)=>{
-                payload.props.c -= 22
-            })
+                |> produce(payload => {
+                    payload.props.a = 11
+                })
+            $("aaa.*")
+                |> produce(payload => {
+                    payload.props.b = 22
+                })
+            $("aaa.*[:3].*")
+                |> produce(payload => {
+                    payload.props.c = 33
+                })
         }
     },
-    "aaa.bbb.kkk":{
-        before:{
-        },
-        after:{
-            props:{
-                a:1,
-                b:2,
-                c:33
+    "aaa.bbb.ccc1": {
+        before: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 3
             }
         },
-        traverse($){
-            $("*").produce((payload)=>{
+        after: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 33
+            }
+        },
+        traverse($) {
+            $("*").pipe(
+                produce(payload => {
+                    payload.props.a = 11
+                })
+            )
+            $("aaa.*").pipe(
+                produce(payload => {
+                    payload.props.b = 22
+                })
+            )
+            ;(
+                $("*")
+                |> display(false)
+                |> select("aaa.bbb.ccc1")
+                |> rescue()
+            ).pipe(
+                select("aaa.bbb.*"),
+                produce(payload => {
+                    payload.props.c = 55
+                }),
+                select("aaa.bbb.ccc1"),
+                produce(payload => {
+                    payload.props.c -= 22
+                })
+            )
+        }
+    },
+    "aaa.bbb.kkk": {
+        before: {},
+        after: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 33
+            }
+        },
+        traverse($) {
+            $("*").produce(payload => {
                 payload.props = {}
                 payload.props.a = 1
             })
 
-            $("*").produce((payload)=>{
+            $("*").produce(payload => {
                 payload.props.b = 2
             })
 
-            $("aaa.bbb.*").produce((payload)=>{
+            $("aaa.bbb.*").produce(payload => {
                 payload.props.c = 33
             })
         }
     },
-    "aaa.bbb.ddd":{
-        before:{
-        },
-        after:{
-            props:{
-                a:1,
-                b:2,
-                c:33
+    "aaa.bbb.ddd": {
+        before: {},
+        after: {
+            props: {
+                a: 1,
+                b: 2,
+                c: 33
             }
         },
-        traverse($){
-            $("*",{
-                include:["aaa.bbb.ddd"]
-            }).produce((payload)=>{
-                payload.props = {}
-                payload.props.a = 1
+        traverse($) {
+            $("*", {
+                include: ["aaa.bbb.ddd"]
             })
+                |> produce(payload => {
+                    payload.props = {}
+                    payload.props.a = 1
+                })
 
-            $("*",{
-                include:["aaa.bbb.ddd"]
-            }).produce((payload)=>{
-                payload.props.b = 2
+            $("*", {
+                include: ["aaa.bbb.ddd"]
             })
+                |> produce(payload => {
+                    payload.props.b = 2
+                })
 
-            $("*",{
-                exclude:["aaa.bbb.ddd"]
-            }).display(false)
+            $("*", {
+                exclude: ["aaa.bbb.ddd"]
+            }) |> display(false)
 
-            $("aaa.bbb.*",{
-                include:["aaa.bbb.ddd"]
-            }).produce((payload)=>{
-                payload.props.c = 33
+            $("aaa.bbb.*", {
+                include: ["aaa.bbb.ddd"]
             })
+                |> produce(payload => {
+                    payload.props.c = 33
+                })
         }
-    },
+    }
 })
