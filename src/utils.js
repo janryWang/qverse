@@ -105,9 +105,9 @@ class Controller {
         this.createAction(payload => {
             if (!payload) return payload
             if (isBool(fn)) {
-                payload["data-propers-visible"] = fn
+                payload["data-propers-hidden"] = !fn
             } else if (isFn(fn)) {
-                payload["data-propers-visible"] = !!fn(payload)
+                payload["data-propers-hidden"] = !fn(payload)
             }
             return payload
         })
