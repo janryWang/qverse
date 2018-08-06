@@ -105,13 +105,10 @@ class Controller {
         this.createAction(payload => {
             if (!payload) return payload
             if (isBool(fn)) {
-                if (fn) return payload
-                return false
+                payload["data-propers-visible"] = fn
             } else if (isFn(fn)) {
-                if (fn(payload)) return payload
-                return false
+                payload["data-propers-visible"] = !!fn(payload)
             }
-
             return payload
         })
         return this
